@@ -1,8 +1,3 @@
-# 为您的仓库创建README文件
-
-根据您的代码库内容，我将为您创建一份完整的README文件，介绍您的stable-diffusion.onnx项目。
-
-```markdown:/home/lds/stable-diffusion.onnx/README.md
 # Stable Diffusion ONNX
 
 这是一个基于ONNX Runtime的Stable Diffusion实现，旨在提供高效、易于部署的文本到图像生成解决方案。
@@ -28,19 +23,7 @@
 
 ## 模型下载
 
-在运行之前，您需要下载转换好的ONNX模型文件。模型文件应放置在`./models`目录下，目录结构如下：
-
-```
-models/
-├── tokenizer/
-│   └── (tokenizer文件)
-├── text_encoder/
-│   └── model.onnx
-├── unet/
-│   └── model.onnx
-└── vae_decoder/
-    └── model.onnx
-```
+在运行之前，您需要下载转换好的ONNX模型文件。模型文件应放置在`./models`目录下
 
 ## 快速开始
 
