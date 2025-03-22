@@ -84,6 +84,13 @@ class StableDiffusionPipeline:
         return text_embeddings
     
     def denoise_latent(self, latents, text_embeddings, timesteps, guidance):
+        def check_variable_type(x):
+            if isinstance(x, np.ndarray):
+                print("变量是一个 np.array")
+            elif isinstance(x, torch.Tensor):
+                print("变量是一个 torch.Tensor")
+            else:
+                print("变量既不是 np.array, 也不是 torch.Tensor")
         do_classifier_free_guidance = guidance > 1.0
 
         self.scheduler.set_timesteps(self.config.num_inference_steps)
@@ -107,7 +114,11 @@ class StableDiffusionPipeline:
             if do_classifier_free_guidance:
                 noise_pred_uncond, noise_pred_text = np.split(noise_pred, 2)
                 noise_pred = noise_pred_uncond + guidance * (noise_pred_text - noise_pred_uncond)
+
+            # 使用自定义的调度器
             latents = self.scheduler.step(noise_pred, timestep, latents).prev_sample
+            # 使用 Diffusers 的调度器
+            # latents = self.scheduler.step(torch.from_numpy(noise_pred), timestep, torch.from_numpy(latents)).prev_sample.numpy()
         return latents
     def decode_latent(self, latents):
         images = self.vae_decoder.run(None, {"latent_sample": latents.astype(np.float32)})[0]

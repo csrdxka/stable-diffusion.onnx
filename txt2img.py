@@ -9,7 +9,7 @@ def main():
     pipeline = StableDiffusionPipeline(config)
 
     # 设置提示词和负向提示词
-    prompt = "a photo of a small cat"
+    prompt = "a photo of a small cute dog"
     negative_prompt = ""
 
     # 运行pipeline

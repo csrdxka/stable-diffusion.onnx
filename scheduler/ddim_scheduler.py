@@ -45,8 +45,9 @@ class DDIMScheduler:
         根据时间步缩放模型输入
         注意：这里传入的 timestep 应该是训练时的时间步下标（例如 self.timesteps 中的某个值）
         """
-        sigma = np.sqrt(self.alphas_cumprod[timestep])
-        return sample / np.sqrt(sigma**2 + 1)
+        # sigma = np.sqrt(self.alphas_cumprod[timestep])
+        # return sample / np.sqrt(sigma**2 + 1)
+        return sample
 
     def step(
         self,
