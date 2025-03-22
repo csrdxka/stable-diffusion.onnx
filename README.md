@@ -23,7 +23,7 @@
 
 ## 模型下载
 
-在运行之前，您需要下载转换好的ONNX模型文件。模型文件应放置在`./models`目录下
+在运行之前，您需要下载转换好的ONNX模型文件。模型文件应放置在`./models`目录下，魔搭社区存放了转换好的[模型文件](https://modelscope.cn/models/zuiren/stable-diffusion-onnx/files)，您可以直接下载使用。
 
 ## 快速开始
 
