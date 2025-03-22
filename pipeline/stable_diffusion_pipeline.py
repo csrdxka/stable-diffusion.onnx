@@ -7,6 +7,7 @@ from PIL import Image
 from tqdm import tqdm
 import onnxruntime as ort
 from typing import List, Optional, Tuple, Union
+from diffusers import DDIMScheduler as DiffusersDDIMScheduler
 
 class StableDiffusionPipeline:
     def __init__(self, config):
@@ -14,7 +15,7 @@ class StableDiffusionPipeline:
         self.device = config.device
         self.dtype = np.float32
 
-        self.generator = torch.Generator(device=self.device)
+        self.generator = np.random
 
         # Initialize providers
         providers = ['CUDAExecutionProvider'] if self.device == 'cuda' else ['CPUExecutionProvider']
@@ -33,12 +34,21 @@ class StableDiffusionPipeline:
             num_train_timesteps=1000,
             clip_sample=False
         )
+
+        # 使用 Diffusers 的调度器
+        # self.scheduler = DiffusersDDIMScheduler(
+        #     beta_start=0.00085,
+        #     beta_end=0.012,
+        #     beta_schedule="scaled_linear",
+        #     num_train_timesteps=1000,
+        #     clip_sample=False
+        # )
     
     def set_random_seed(self, seed):
         if isinstance(seed, int):
-            self.generator.manual_seed(seed)
+            self.generator.seed(seed)
         else:
-            self.generator.seed()
+            self.generator.seed(None)
     
     def initialize_latents(self, batch_size, unet_channels, latent_height, latent_width):
         latents_shape = (batch_size, unet_channels, latent_height, latent_width)
@@ -69,12 +79,11 @@ class StableDiffusionPipeline:
             return text_embeddings
         
         text_embeddings = tokenize(prompt).copy()
-        if do_classifier_free_guidance:
-            uncond_embeddings = tokenize(negative_prompt)
-            text_embeddings = np.concatenate([uncond_embeddings, text_embeddings])
+        uncond_embeddings = tokenize(negative_prompt)
+        text_embeddings = np.concatenate([uncond_embeddings, text_embeddings])
         return text_embeddings
     
-    def denoise_latent(self, latents, text_embeddings, timestep, guidance):
+    def denoise_latent(self, latents, text_embeddings, timesteps, guidance):
         do_classifier_free_guidance = guidance > 1.0
 
         self.scheduler.set_timesteps(self.config.num_inference_steps)
@@ -98,26 +107,27 @@ class StableDiffusionPipeline:
             if do_classifier_free_guidance:
                 noise_pred_uncond, noise_pred_text = np.split(noise_pred, 2)
                 noise_pred = noise_pred_uncond + guidance * (noise_pred_text - noise_pred_uncond)
-            
             latents = self.scheduler.step(noise_pred, timestep, latents).prev_sample
         return latents
-    
     def decode_latent(self, latents):
-        input_name = self.vae_decoder.get_inputs()[0].name
-        images = self.vae_decoder.run(None, {input_name: latents.astype(np.float32)})[0]
+        images = self.vae_decoder.run(None, {"latent_sample": latents.astype(np.float32)})[0]
         return images
     
     @staticmethod
     def numpy_to_pil(images):
-        images = (images / 2 + 0.5).clip(0, 1)
-        images = images.transpose(0, 2, 3, 1)
-        images = (images * 255).round().astype("uint8")
-        pil_images = [Image.fromarray(image) for image in images]
-        return pil_images
+        # 将范围 [-1, 1] 转换为 [0, 255]
+        images = (images + 1) * 255 / 2
+        # 裁剪超出 [0, 255] 的数值
+        images = np.clip(images, 0, 255)
+        # 四舍五入后转换为 uint8 类型
+        images = np.round(images).astype(np.uint8)
+        # 调整维度从 (N, C, H, W) 到 (N, H, W, C)
+        images = np.transpose(images, (0, 2, 3, 1))
+        # 将每一张图转换为 PIL.Image 对象
+        return [Image.fromarray(img) for img in images]
     
     def run(self, prompt, negative_prompt, seed=None):
-        if seed is not None:
-            self.set_random_seed(seed)
+        self.set_random_seed(seed)
         
         timesteps = None
         latents = self.initialize_latents(
