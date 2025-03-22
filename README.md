@@ -1,6 +1,6 @@
 # Stable Diffusion ONNX
 
-这是一个基于ONNX Runtime的Stable Diffusion实现，旨在提供高效、易于部署的文本到图像生成解决方案。
+这是一个基于ONNX Runtime的Stable Diffusion实现。
 
 ## 项目概述
 
@@ -133,7 +133,7 @@ config.num_inference_steps = 30  # 减少推理步数以加快生成
 
 ## 致谢
 
-本项目基于Stable Diffusion模型，感谢原始模型的开发者和贡献者。
+本项目基于Stable Diffusion模型，感谢原始模型的开发者和贡献者;同时参考了![onnxruntime官方实现](https://github.com/microsoft/onnxruntime/tree/main/onnxruntime/python/tools/transformers/models/stable_diffusion)
 ```
 
 这份README文件提供了项目的基本介绍、安装要求、使用方法、配置参数以及项目结构等信息。您可以根据需要进一步完善，特别是添加许可证信息和其他特定的项目细节。
